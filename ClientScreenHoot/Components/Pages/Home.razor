@@ -1,0 +1,36 @@
+﻿@page "/"
+@using System.Diagnostics
+@rendermode RenderMode.InteractiveServer
+@inject IJSRuntime JS
+
+<script>
+    window.setImage = async (imageElementId, imageStream) => {
+        const arrayBuffer = await imageStream.arrayBuffer();
+        const blob = new Blob([arrayBuffer]);
+        const url = URL.createObjectURL(blob);
+        const image = document.getElementById(imageElementId);
+        image.onload = () => {
+            URL.revokeObjectURL(url);
+        }
+        image.src = url;
+    }
+</script>
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+<img id="image" />
+
+
+@code
+{
+    public static Home Instance { get; set; }
+
+    public Home() => Instance = this;
+
+    public void SetImage(string imageId, DotNetStreamReference imageStream)
+    {
+        JS.InvokeVoidAsync("setImage", imageId, imageStream);
+    }
+}
