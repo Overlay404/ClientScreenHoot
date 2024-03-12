@@ -35,16 +35,8 @@ app.MapPost("/send_image", async (IFormFile image) =>
     using (var memoryStream = new MemoryStream())
     {
         await image.CopyToAsync(memoryStream);
-        //Image.ByteImage = memoryStream.ToArray();
-        if(Home.Instance != null)
-        {
-            var dotNetStreamReference = new DotNetStreamReference(memoryStream);
-            Home.Instance.SetImage("image", dotNetStreamReference);
-        }
+        Image.ByteImage = memoryStream;
     }
-
-
-
     return image.Length;
 }).DisableAntiforgery();
 

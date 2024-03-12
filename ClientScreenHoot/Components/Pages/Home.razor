@@ -18,19 +18,37 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h2 class="justify-content-center">@TextError</h2>
 
-<img id="image" />
+<img id="image" class="rounded mx-auto d-block" src="data:image;base64, @imageSource" height="780" width="1620" />
 
 
 @code
 {
-    public static Home Instance { get; set; }
+    public static string imageSource = "";
+    public string? TextError;
 
-    public Home() => Instance = this;
+    private static System.Timers.Timer aTimer;
 
-    public void SetImage(string imageId, DotNetStreamReference imageStream)
+    public Home() => StartTimer();
+
+    public void StartTimer()
     {
-        JS.InvokeVoidAsync("setImage", imageId, imageStream);
+        aTimer = new System.Timers.Timer(1000);
+        aTimer.Elapsed += ViewFrame;
+        aTimer.Enabled = true;
+        aTimer.Start();
+    }
+
+    public void ViewFrame(Object source, System.Timers.ElapsedEventArgs e)
+    {
+        if(Image.ByteImage == null)
+        {
+            TextError = "Запросов с потоком не поступает";
+            return;
+        }
+        TextError = "";
+        imageSource = System.Convert.ToBase64String(Image.ByteImage.ToArray());
+        InvokeAsync(StateHasChanged);
     }
 }

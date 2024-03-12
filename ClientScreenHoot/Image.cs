@@ -2,6 +2,6 @@
 {
     public class Image
     {
-        public static byte[] ByteImage { get; set; } = [];
+        public static MemoryStream ByteImage { get; set; }
     }
 }
