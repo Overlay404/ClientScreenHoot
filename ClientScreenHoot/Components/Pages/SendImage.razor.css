@@ -9,3 +9,19 @@
 .drop-zone.hover {
     border-style: solid;
 }
+
+.text-answer {
+    font-size: 7px;
+}
+
+.card-answer {
+    border: 1px solid black;
+    border-radius: 3px;
+    margin: 20px;
+    column-width: 200px;
+    max-width: 200px;
+    background: #f7f7f7;
+}
+.card-answer:hover {
+    background: #f2f2f2;
+}

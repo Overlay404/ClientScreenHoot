@@ -10,7 +10,7 @@
 <form>
     <div class="form-group">
         <label for="formGroupExampleInput">Номер задания</label>
-        <input type="text" class="form-control" bind-value="@idTask"
+        <input type="text" class="form-control" bind="@idTask" @onchange="@((ChangeEventArgs e) => idTask = e.Value.ToString())"
                id="formGroupExampleInput" placeholder="Номер задания">
     </div>
 </form>
@@ -31,22 +31,47 @@
             <p>Drop a file or paste an image from the clipboard or select a file using the input</p>
             <InputFile OnChange="@OnChange" @ref="inputFile" />
         </div>
-        <img src="@src" class="rounded mx-auto d-block"/>
     </div>
-    <label hidden="@(IsPicture)">
-        <div class="form-group">
-            <label for="formGroupExampleInput">Ввод ответа на задание:</label>
-            <input type="text" class="form-control" bind-value="@idTask"
-                   id="formGroupExampleInput" placeholder="Ввод ответа" multiple>
-        </div>
-    </label>
+    <div class="form-group" hidden="@(IsPicture)">
+        <label for="formGroupExampleInput">Ввод ответа на задание:</label>
+        <textarea type="text" class="form-control" bind="@TextAnswer" @onchange="@((ChangeEventArgs e) => TextAnswer = e.Value.ToString())"
+                id="formGroupExampleInput" placeholder="Ввод ответа"/>
+    </div>
 </p>
+<div>
+    <button class="btn btn-outline-dark" type="button" onclick="@(() => AddToListItem())">Добавить в список</button>
+</div>
+
+<div class="container-fluid">
+    <div class="row flex-row flex-nowrap">
+        @foreach (var answer in ListAnswer)
+        {
+            <div class="card-answer" @onclick="@(() => ChooseCard(answer))">
+                <div>
+                    <label class="form-label">Номер карточки: @answer.Number.ToString()</label>
+                </div>
+                @if(answer.Image != null)
+                {
+                    <div>
+                        <img class="img-thumbnail" height="400" width="200" src="data:image;base64,@Convert.ToBase64String(answer.Image)" />
+                    </div>   
+                }
+                <div>
+                    <label class="text-answer">@answer.TextAnswer</label>
+                </div>
+            </div>
+        }
+    </div>
+</div>
 
 
 @code {
     bool IsPicture = true;
-    string idTask;
-    string UnsafaFileName;
+    string idTask { get; set; }
+    string TextAnswer { get; set; }
+    string TextInfo { get; set; }
+
+    List<Answer> ListAnswer = new List<Answer>(); 
 
     ElementReference dropZoneElement;
     InputFile inputFile;
@@ -55,6 +80,7 @@
     IJSObjectReference _dropZoneInstance;
 
     string src;
+    MemoryStream ImageStream;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -72,6 +98,7 @@
         using var ms = new MemoryStream();
         await stream.CopyToAsync(ms);
         src = "data:" + e.File.ContentType + ";base64," + Convert.ToBase64String(ms.ToArray());
+        ImageStream = ms;
     }
 
     public async ValueTask DisposeAsync()
@@ -88,8 +115,31 @@
         }
     }
 
+    private void AddToListItem()
+    {
+        int number;
+        if (int.TryParse(idTask, out number) == false)
+        {
+            return;
+        }
 
-    void ChangeValueRadioButton(string TypeButton)
+        Answer answ = new Answer();
+
+        if(IsPicture == true && ImageStream != null)
+        {
+            answ.Image = ImageStream.ToArray();
+            answ.Number = number;
+        }
+        else
+        {
+            answ.TextAnswer = TextAnswer;
+            answ.Number = number;
+        }
+
+        ListAnswer.Add(answ);
+    }
+
+    private void ChangeValueRadioButton(string TypeButton)
     {
         switch (TypeButton)
         {
@@ -105,5 +155,11 @@
                 break;
         }
         InvokeAsync(StateHasChanged);
+    }
+
+    private void ChooseCard(Answer answer)
+    {
+        TextAnswer = answer.Number.ToString();
+        TextInfo = "Выбрана карточка с ID: " + answer.Number;
     }
 }
