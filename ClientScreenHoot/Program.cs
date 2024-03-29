@@ -3,6 +3,7 @@ using ClientScreenHoot.Components;
 using ClientScreenHoot.Components.Pages;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.JSInterop;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +39,11 @@ app.MapPost("/send_image", async (IFormFile image) =>
         Image.ByteImage = memoryStream;
     }
     return image.Length;
+}).DisableAntiforgery();
+
+app.MapGet("/get_card", () =>
+{
+    return JsonSerializer.Serialize(Answer.CurrentAnswer);
 }).DisableAntiforgery();
 
 app.Run();

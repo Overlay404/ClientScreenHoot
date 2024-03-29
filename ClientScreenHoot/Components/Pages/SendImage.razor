@@ -64,6 +64,7 @@
     </div>
 </div>
 
+<label class="form-label">@TextInfo</label>
 
 @code {
     bool IsPicture = true;
@@ -123,6 +124,12 @@
             return;
         }
 
+        if(ListAnswer.FirstOrDefault(la => la.Number == number) != null)
+        {
+            TextInfo = "Карточка с таким id уже есть!";
+            return;
+        }
+
         Answer answ = new Answer();
 
         if(IsPicture == true && ImageStream != null)
@@ -159,7 +166,7 @@
 
     private void ChooseCard(Answer answer)
     {
-        TextAnswer = answer.Number.ToString();
         TextInfo = "Выбрана карточка с ID: " + answer.Number;
+        Answer.CurrentAnswer = answer;
     }
 }
